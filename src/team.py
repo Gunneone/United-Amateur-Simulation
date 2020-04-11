@@ -1,19 +1,16 @@
 import random
 import math
 import config
-<<<<<<< HEAD
 import logging
 
 def rate(te):
     return te.wins/te.games
 
-class Team():      
-=======
+class Team():
 
 print(config.amateur)
 
 class Team():
->>>>>>> 092dae418aa635d75e773ac73b40bf77ea9f9ae6
     def __init__(self,name,t,a,v,m,s):
         self.name=name
         self.t=t
@@ -94,21 +91,10 @@ class Team():
 
         name = str(t)+"-"+str(a)+"-"+str(v)+"-"+str(m)+"-"+str(s)
         print(name)
-<<<<<<< HEAD
         logging.info(name)
-=======
->>>>>>> 092dae418aa635d75e773ac73b40bf77ea9f9ae6
 
         return cls (name, t, a, v, m, s)
 
-    def win_rate(self):
-<<<<<<< HEAD
-      return self.wins/self.games
-      
-=======
-        return self.wins/self.games
-
->>>>>>> 092dae418aa635d75e773ac73b40bf77ea9f9ae6
     def log(self):
         print(str(self.t)+"-"+str(self.a)+"-"+str(self.v)+"-"+str(self.m)+"-"+str(self.s))
 
@@ -237,12 +223,8 @@ class Team():
         #self.results.append(str(round(100*ownWins/games,digits))+"\\%")
 
     def allMatches(self,teams):
-<<<<<<< HEAD
         if config.verbose:
             print("Simulating for Team "+str(self.name))
-=======
-        print("Simulating for Team "+str(self.name))
->>>>>>> 092dae418aa635d75e773ac73b40bf77ea9f9ae6
         for opp in teams:
             if opp.name != self.name:
                 self.playAgainst(opp)
