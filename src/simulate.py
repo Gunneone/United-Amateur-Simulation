@@ -58,27 +58,55 @@ if __name__ == '__main__':
 	print("For " + str(config.amateur) + " wp there are " + str(combinations) + " different combinations.")
 	logging.info("For " + str(config.amateur) + " wp there are " + str(combinations) + " different combinations.")
 
-	omph1 = team.Team("OMPH1",0,7,17,17,50)
-	omph2 = team.Team("OMPH2",0,9,16,16,48)
-	teamList = [omph1,omph2]
+	omph = team.Team("OMPH",0,6,16,16,48)
+	omph2 = team.Team("OMPH2",0,5,17,17,48)
+	esc = team.Team("OMPH3",0,10,16,14,42)
+	omph4 = team.Team("OMPH4",0,8,32,33,11)
+	teamList = [omph2,omph,omph4]
 	
-	print("\nTEAMS:")
-	logging.info("\nTEAMS:")
+	logging.info("Generating teams...")
+	
+	if config.verbose:
+		print("\nTEAMS:")
+		logging.info("\nTEAMS:")
 	for i in range(0,config.teamAmount):
 		teamList.append(team.Team.random(config.amateur,combs))
 
 	if config.singleTeam == True:
+		print("Simulating games...")
+		logging.info("Simulating games...")
 		esc.allMatches(teamList)
 		print("\nWins: "+str(esc.wins))
 		print("Games: "+str(esc.games))
 		print("\nTeam "+str(esc.name)+" had a win rate of "+str(round(100*esc.wins/(esc.games),2))+"%.")
 		print("Teams, that have defeated ESC:")
+		teamList.sort(key=team.rate)
 		for t in teamList:
-			if t.wins > 0:
+			if t.wins > config.games*config.displayThreshhold:
 				print("Team "+str(t.name)+": "+str(t.wins)+" of "+str(t.games)+" games")
+			if t.wins > config.games*0.75:
+				t.flagged = True
+			t.wins=0
+			t.games=0
+		
+		config.singleTeam = False
+		
+		for t in teamList:
+			t.allMatches(teamList)
+			
+		teamList.sort(key=team.rate)
+		
+		for t in teamList:
+			if t.flagged:
+				print("\nTeam "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
+				logging.info("Team "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
+
+		config.singleTeam = True
+	
+	
 
 	if config.singleTeam == False:
-		for i in range(1,config.phases+1):			
+		for i in range(1,config.phases+1):	
 			print("PHASE "+str(i))
 			logging.info("\nPHASE "+str(i))
 			print("Simulating games...")
@@ -86,14 +114,14 @@ if __name__ == '__main__':
 			for t in teamList:
 				t.allMatches(teamList)
 
-			print("\n"+str(config.games*(len(teamList))*(len(teamList)-1))+" games were simulated. (Phase "+str(i)+")")
-			logging.info(""+str(config.games*(len(teamList))*(len(teamList)-1))+" games were simulated. (Phase "+str(i)+")")
+			print("\n"+str(config.games*(len(teamList))*(len(teamList)-1))+" games were simulated. (Phase "+str(i)+")\n")
+			logging.info(""+str(config.games*(len(teamList))*(len(teamList)-1))+" games were simulated. (Phase "+str(i)+")\n")
 			teamList.sort(key=team.rate)
 
 			if i < config.phases:
 				survivors = []
 				for t in teamList:
-					if t.wins/t.games <= config.killThreshhold:
+					if t.wins/t.games < config.killThreshhold:
 						print("\nTeam "+t.name+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% and was killed.")
 						logging.info("Team "+t.name+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% and was killed.")
 					else:
@@ -106,14 +134,18 @@ if __name__ == '__main__':
 				logging.info(str(len(survivors))+" of "+str(len(teamList))+" teams have survived.")
 
 				teamList = survivors
+				if len(teamList)<2:
+					print("\nWe have a winner!\n")
+					logging.info("\nWe have a winner!\n")
+					break
 
 
 
-
-	for t in teamList:
-		if t.wins/t.games >= config.displayThreshhold:
-			print("\nTeam "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
-			logging.info("Team "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
+	if len(teamList)>1 and config.singleTeam == False:
+		for t in teamList:
+			if t.wins/t.games >= config.displayThreshhold:
+				print("\nTeam "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
+				logging.info("Team "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
 
 		#tex = "\\documentclass{article}\n\\usepackage[a4paper,left=0cm,right=0cm,top=1cm,bottom=4cm,bindingoffset=0mm]{geometry}\n\\begin{document}\n\\bgroup\\def\\arraystretch{2}\\setlength\\tabcolsep{0.75mm}\n\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}\n\\hline\n"
 

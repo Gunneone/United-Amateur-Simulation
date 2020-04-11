@@ -7,10 +7,6 @@ def rate(te):
     return te.wins/te.games
 
 class Team():
-
-print(config.amateur)
-
-class Team():
     def __init__(self,name,t,a,v,m,s):
         self.name=name
         self.t=t
@@ -21,11 +17,14 @@ class Team():
         self.wins=0
         self.defeats=0
         self.games=0
+        self.flagged=False
         #self.results=[]
         if t*2+a*2+v+m+s != config.amateur:
             print("Team "+str(self.name)+" does not have the right amount of WP!")
+            logging.warn("Team "+str(self.name)+" does not have the right amount of WP!")
         if v>3*m or v>3*s or m>3*v or m>3*s or s>3*v or s>3*m:
             print("3:1 REDUKTION!")
+            logging.warn("3:1 REDUKTION!")
 
     @classmethod
     def random(cls,wp,comb):
@@ -90,8 +89,9 @@ class Team():
             s = first
 
         name = str(t)+"-"+str(a)+"-"+str(v)+"-"+str(m)+"-"+str(s)
-        print(name)
-        logging.info(name)
+        if config.verbose:
+            print(name)
+            logging.info(name)
 
         return cls (name, t, a, v, m, s)
 
@@ -142,7 +142,13 @@ class Team():
         ownWins = 0
         oppWins = 0
         ties = 0
-        for i in range(config.games):
+        
+        gameAmount = config.games
+        
+        if config.singleTeam:
+            gameAmount=config.singleTeamGames
+                        
+        for i in range(gameAmount):
             self.games+=1
             opp.games+=1
             if config.verbose:

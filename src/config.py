@@ -1,10 +1,11 @@
-games = 1
+games = 10
 survivorGames = 20
 verbose = False
 digits = 1
-amateur = 98
-teamAmount = 1000
-displayThreshhold = 0.2
+amateur = 92
+teamAmount = 197
+displayThreshhold = 0.3
 killThreshhold = 0.5
-phases = 3
-singleTeam = False
+phases = 100
+singleTeam = True
+singleTeamGames = 100
