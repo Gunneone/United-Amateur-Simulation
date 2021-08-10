@@ -2,11 +2,12 @@ import config
 import math
 import team
 import logging
+import sys
 from datetime import datetime
 
 if __name__ == '__main__':
 
-	logging.basicConfig(filename="../logs/"+str(datetime.now())+".txt",filemode='a',format="",level=logging.INFO)
+	logging.basicConfig(filename="../logs/"+str(datetime.now().strftime('%m%d-%H%M%S'))+".txt",filemode='a',format="",level=logging.INFO)
 	logging.info("CONFIGURATION")
 	logging.info("Number of games per match: "+str(config.games))
 	logging.info("Verbose mode: "+str(config.verbose))
@@ -17,6 +18,7 @@ if __name__ == '__main__':
 	logging.info("Kill Threshhold: "+str(config.killThreshhold))
 	logging.info("Number of simulated phases: "+str(config.phases))
 	logging.info("Simulate single Team: "+str(config.singleTeam))
+	logging.info("Use Point System instead of KO: "+str(config.pointSystem))
 	logging.info("")
 
 	combs = []
@@ -58,61 +60,86 @@ if __name__ == '__main__':
 	print("For " + str(config.amateur) + " wp there are " + str(combinations) + " different combinations.")
 	logging.info("For " + str(config.amateur) + " wp there are " + str(combinations) + " different combinations.")
 
-	omph = team.Team("OMPH",0,6,16,16,48)
-	omph2 = team.Team("OMPH2",0,5,17,17,48)
-	esc = team.Team("OMPH3",0,10,16,14,42)
-	omph4 = team.Team("OMPH4",0,8,32,33,11)
-	teamList = [omph2,omph,omph4]
+	esc = team.Team("6-20-12-36",0,6,20,12,36)
+	esc1 = team.Team("ESC1",0,10,34,16,48)
+	esc2 = team.Team("ESC2",0,10,42,42,14)
+	esc3 = team.Team("ESC3",0,10,30,17,51)
+	esc4 = team.Team("ESC4",0,10,28,36,12)
+#	esc5 = team.Team("ESC5",0,10,42,36,12)
+	teamList = [esc1,esc2,esc3]#,esc4,esc5]
 	
 	logging.info("Generating teams...")
+	print("Generating teams...")
 	
 	if config.verbose:
 		print("\nTEAMS:")
 		logging.info("\nTEAMS:")
 	for i in range(0,config.teamAmount):
-		teamList.append(team.Team.random(config.amateur,combs))
+		teamList.append(team.Team.good(config.amateur,combs))
+
+	logging.info(str(len(teamList))+" teams in the race.")
+	print(str(len(teamList))+" teams in the race.")
 
 	if config.singleTeam == True:
 		print("Simulating games...")
 		logging.info("Simulating games...")
 		esc.allMatches(teamList)
-		print("\nWins: "+str(esc.wins))
-		print("Games: "+str(esc.games))
-		print("\nTeam "+str(esc.name)+" had a win rate of "+str(round(100*esc.wins/(esc.games),2))+"%.")
-		print("Teams, that have defeated ESC:")
+		if config.pointSystem:
+			print("\nTeam "+str(esc.name)+" scored "+str(esc.wins)+" after "+str(esc.games)+"games.")
+			print("That is an average of "+str(round(esc.wins/(esc.games),2))+"points per game.")
+			logging.info("\nTeam "+str(esc.name)+" scored "+str(esc.wins)+" after "+str(esc.games)+"games.")
+			logging.info("That is an average of "+str(round(esc.wins/(esc.games),2))+"points per game.")
+		else:
+			print("\nWins: "+str(esc.wins))
+			print("Games: "+str(esc.games))
+			print("\nTeam "+str(esc.name)+" had a win rate of "+str(round(100*esc.wins/(esc.games),2))+"%.")
+			logging.info("\nWins: "+str(esc.wins))
+			logging.info("Games: "+str(esc.games))
+			logging.info("\nTeam "+str(esc.name)+" had a win rate of "+str(round(100*esc.wins/(esc.games),2))+"%.")
+		print("Top-Scorers against "+esc.name+":")
 		teamList.sort(key=team.rate)
 		for t in teamList:
-			if t.wins > config.games*config.displayThreshhold:
-				print("Team "+str(t.name)+": "+str(t.wins)+" of "+str(t.games)+" games")
-			if t.wins > config.games*0.75:
-				t.flagged = True
-			t.wins=0
-			t.games=0
+			if config.pointSystem:          
+				if t.wins > config.games*config.displayThreshhold*3:
+					print("Team "+str(t.name)+": "+str(t.wins)+" points after "+str(t.games)+" games")
+					logging.info("Team "+str(t.name)+": "+str(t.wins)+" points after "+str(t.games)+" games")
+				if t.wins > config.games*0.75*3:
+					t.flagged = True
+			else:
+				if t.wins > config.games*config.displayThreshhold:
+					print("Team "+str(t.name)+": "+str(t.wins)+" of "+str(t.games)+" games")
+					logging.info("Team "+str(t.name)+": "+str(t.wins)+" of "+str(t.games)+" games")
+				if t.wins > config.games*0.75:
+					t.flagged = True
+				t.wins=0
+				t.games=0
 		
-		config.singleTeam = False
+		#config.singleTeam = False
 		
-		for t in teamList:
-			t.allMatches(teamList)
-			
-		teamList.sort(key=team.rate)
+		#for t in teamList:
+		#    t.allMatches(teamList)
+		#    
+		#teamList.sort(key=team.rate)
 		
-		for t in teamList:
-			if t.flagged:
-				print("\nTeam "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
-				logging.info("Team "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
+		#for t in teamList:
+		#    if t.flagged:
+		#        print("\nTeam "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
+		#        logging.info("Team "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
 
-		config.singleTeam = True
+		#config.singleTeam = True
 	
 	
 
 	if config.singleTeam == False:
-		for i in range(1,config.phases+1):	
+		for i in range(1,config.phases+1):  
 			print("PHASE "+str(i))
 			logging.info("\nPHASE "+str(i))
 			print("Simulating games...")
 			logging.info("Simulating games...")
-			for t in teamList:
-				t.allMatches(teamList)
+			for t in range(len(teamList)):
+				teamList[t].allMatches(teamList)
+				sys.stdout.write('\r'+str(t+1) + ' of '+ str(len(teamList)) +' teams simulated.')
+				sys.stdout.flush()
 
 			print("\n"+str(config.games*(len(teamList))*(len(teamList)-1))+" games were simulated. (Phase "+str(i)+")\n")
 			logging.info(""+str(config.games*(len(teamList))*(len(teamList)-1))+" games were simulated. (Phase "+str(i)+")\n")
@@ -120,16 +147,31 @@ if __name__ == '__main__':
 
 			if i < config.phases:
 				survivors = []
-				for t in teamList:
-					if t.wins/t.games < config.killThreshhold:
-						print("\nTeam "+t.name+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% and was killed.")
-						logging.info("Team "+t.name+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% and was killed.")
-					else:
-						print("\nTeam "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"%.")
-						logging.info("Team "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"%.")
-						t.wins=0
-						t.games=0
-						survivors.append(t)
+				
+				if config.pointSystem:
+					for t in teamList:
+						if t.wins/t.games < config.killThreshhold*3:
+							print("\nTeam "+t.name+" scored "+str(round(t.wins/(t.games),2))+" points per game after "+str(t.games)+" games and was killed.")
+							logging.info("\nTeam "+t.name+" scored "+str(round(t.wins/(t.games),2))+" points per game after "+str(t.games)+" games and was killed.")
+						else:
+							print("\nTeam "+t.name+" scored "+str(round(t.wins/(t.games),2))+" points per game after "+str(t.games)+" games.")
+							logging.info("\nTeam "+t.name+" scored "+str(round(t.wins/(t.games),2))+" points per game after "+str(t.games)+" games.")
+							t.wins=0
+							t.games=0
+							survivors.append(t)             
+				else:
+					for t in teamList:
+						if t.wins/t.games < config.killThreshhold:
+							print("\nTeam "+t.name+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% and was killed.")
+							logging.info("Team "+t.name+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% and was killed.")
+						else:
+							print("\nTeam "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"%.")
+							logging.info("Team "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"%.")
+							t.wins=0
+							t.games=0
+							survivors.append(t)
+							
+							
 				print(str(len(survivors))+" of "+str(len(teamList))+" teams have survived.")
 				logging.info(str(len(survivors))+" of "+str(len(teamList))+" teams have survived.")
 
@@ -144,23 +186,27 @@ if __name__ == '__main__':
 	if len(teamList)>1 and config.singleTeam == False:
 		for t in teamList:
 			if t.wins/t.games >= config.displayThreshhold:
-				print("\nTeam "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
-				logging.info("Team "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
+				if config.pointSystem:
+					print("\nTeam "+str(t.name)+" scored "+str(round(t.wins/(t.games),2))+" points per game after "+str(t.games)+" games.")
+					logging.info("\nTeam "+str(t.name)+" scored "+str(round(t.wins/(t.games),2))+" points per game after "+str(t.games)+" games.")          
+				else:
+					print("\nTeam "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
+					logging.info("Team "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
 
 		#tex = "\\documentclass{article}\n\\usepackage[a4paper,left=0cm,right=0cm,top=1cm,bottom=4cm,bindingoffset=0mm]{geometry}\n\\begin{document}\n\\bgroup\\def\\arraystretch{2}\\setlength\\tabcolsep{0.75mm}\n\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}\n\\hline\n"
 
 		#for team in teamList:
-		#		tex += " & " + str(team.name)
+		#       tex += " & " + str(team.name)
 
 		#tex += "\\\\\n\\hline\n"
 
 		#for y in teamList:
-		#		 tex += str(y.name)
+		#        tex += str(y.name)
 
-		#		 for idx, x in enumerate(teamList):
-		#				 tex += " & " + y.results[idx]
+		#        for idx, x in enumerate(teamList):
+		#                tex += " & " + y.results[idx]
 
-		#		 tex += "\\\\\n\\hline\n"
+		#        tex += "\\\\\n\\hline\n"
 
 		# tex += "\\end{tabular}\n\\end{document}"
 
