@@ -181,8 +181,6 @@ if __name__ == '__main__':
 					logging.info("\nWe have a winner!\n")
 					break
 
-
-
 	if len(teamList)>1 and config.singleTeam == False:
 		for t in teamList:
 			if t.wins/t.games >= config.displayThreshhold:
@@ -192,31 +190,3 @@ if __name__ == '__main__':
 				else:
 					print("\nTeam "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
 					logging.info("Team "+str(t.name)+" had a win rate of "+str(round(100*t.wins/(t.games),2))+"% win rate after "+str(t.games)+" games.")
-
-		#tex = "\\documentclass{article}\n\\usepackage[a4paper,left=0cm,right=0cm,top=1cm,bottom=4cm,bindingoffset=0mm]{geometry}\n\\begin{document}\n\\bgroup\\def\\arraystretch{2}\\setlength\\tabcolsep{0.75mm}\n\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}\n\\hline\n"
-
-		#for team in teamList:
-		#       tex += " & " + str(team.name)
-
-		#tex += "\\\\\n\\hline\n"
-
-		#for y in teamList:
-		#        tex += str(y.name)
-
-		#        for idx, x in enumerate(teamList):
-		#                tex += " & " + y.results[idx]
-
-		#        tex += "\\\\\n\\hline\n"
-
-		# tex += "\\end{tabular}\n\\end{document}"
-
-		# print(tex)
-
-		#print("\n"+str(games*(len(survivors))*(len(survivors)-1))+" games were simulated. (Phase 2)")
-
-		#print("ESC Games: "+str(esc.games))
-		#print("ESC Wins: "+str(esc.wins))
-		#print("ESC Looses: "+str(esc.defeats))
-		#esc.allMatches(teamList)
-		#print("Team "+str(esc.name)+" "+str(round(100*esc.wins/(esc.wins+esc.defeats),2))+"% win rate")
-		#print(str(esc.wins))
