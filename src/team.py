@@ -55,13 +55,13 @@ class Team():
 		m=0
 		s=0
 
-		rand = random.randint(0,comb[0][10])
+		rand = random.randint(0,comb[0][len(comb[0])-1])
 		t=0
 		while comb[0][t] < rand:
 			t=t+1
 
 
-		rand = random.randint(0,comb[t][10])
+		rand = random.randint(0,comb[t][len(comb[t])-1])
 		a=0
 		while comb[t][a] < rand:
 			a=a+1
