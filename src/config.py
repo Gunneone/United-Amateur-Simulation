@@ -5,7 +5,11 @@ survivorGames = 20
 # Verbose mode for debugging purposes.
 verbose = False
 # Number of digits after the comma for %-Values
-digits = 1
+digits = 2
+# Minimum 1:x Rule
+goodRatio = 2.5
+# Don't look at V for 1:n rule
+excludeDefensive= True
 # WP of the randomly generated Teams
 amateur = 93
 # How many random teams will be added to the user defined teams
