@@ -119,6 +119,11 @@ class Team():
 		if config.verbose:
 			print("Team "+str(self.name)+" vs. Team "+str(opp.name))
 
+		if config.vampireMode and self.name == opp.name:
+			if config.verbose:
+				print('Skipping game in vampire mode as no change can happen here.')
+			return
+
 		ownChances = 0
 		oppChances = 0
 
@@ -257,11 +262,33 @@ class Team():
 
 		#print("Team "+str(self.name)+" has won "+str(ownWins)+" of "+str(games)+" games against Team "+str(opp.name))
 
-		self.wins += ownWins
-		opp.defeats += ownWins
-		self.defeats += oppWins
-		opp.wins += oppWins
-		#self.results.append(str(round(100*ownWins/games,digits))+"\\%")
+		if config.vampireMode:
+			if ownWins>oppWins:
+				opp.name = self.name
+				opp.t = self.t
+				opp.a = self.a
+				opp.v = self.v
+				opp.m = self.m
+				opp.s = self.s
+			elif oppWins>ownWins:
+				self.name = opp.name
+				self.t = opp.t
+				self.a = opp.a
+				self.v = opp.v
+				self.m = opp.m
+				self.s = opp.s
+			if config.verbose:
+				print('Names after vampire bite: ')
+				print(self.name+' and '+opp.name)
+				logging.info('Names after vampire bite: ')
+				logging.info(self.name+' and '+opp.name)
+		else:
+			self.wins += ownWins
+			opp.defeats += ownWins
+			self.defeats += oppWins
+			opp.wins += oppWins
+
+
 
 	def allMatches(self,teams):
 		if config.verbose:
