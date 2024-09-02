@@ -1,7 +1,15 @@
 import random
 import math
+import uuid
 import config
 import logging
+from datetime import datetime
+
+
+logging.basicConfig(filename="../logs/"+str(config.amateur)+"WP__"+str(datetime.now().strftime('%Y-%m-%d %H-%M'))+".txt",filemode='a',format="",level=logging.INFO)
+
+PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67]
+SQUARES = [4,9,16,25,36,49,64,81]
 
 def rate(te):
 	return te.wins/te.games
@@ -18,6 +26,7 @@ class Team():
 		self.defeats=0
 		self.games=0
 		self.flagged=False
+		self.id = str(uuid.uuid4())
 		#self.results=[]
 		if t*2+a*2+v+m+s != config.amateur:
 			print("Team "+str(self.name)+" does not have the right amount of WP!")
@@ -26,13 +35,43 @@ class Team():
 			print("3:1 REDUKTION!")
 			logging.warn("3:1 REDUKTION!")
 
+
+	@classmethod
+	def prime(cls,wp,comb):
+		primes = 0
+		a = 0
+		while(primes < 2 or a<8):
+			candidate = cls.good(wp,comb)
+			
+			primes = [candidate.v in PRIMES, candidate.m in PRIMES, candidate.s in PRIMES].count(True)
+			a = candidate.a
+		return candidate
+
+	@classmethod
+	def square(cls,wp,comb):
+		squares = 0
+		while(squares < 1):
+			candidate = cls.good(wp,comb)
+			squares = [candidate.v in SQUARES, candidate.m in SQUARES, candidate.s in SQUARES].count(True)
+		return candidate
+
+	@classmethod
+	def duplicate_field(cls,wp,comb):
+		condition_met=False
+		while(not condition_met):
+			#print('Condition not met!')
+			candidate = cls.good(wp,comb)
+			#print(candidate.name)			
+			condition_met = candidate.v==candidate.m or candidate.m==candidate.s or candidate.s==candidate.v
+		#print('Condition met! Returning team!')
+		return candidate
+
 	@classmethod
 	def good(cls,wp,comb):
 		factor = 1
 		
 		while(factor<config.goodRatio):
 			candidate = cls.random(wp,comb)
-			
 			minRow=min([candidate.v,candidate.m,candidate.s])
 			if(config.excludeDefensive):
 				maxRow=max([candidate.m,candidate.s])
@@ -40,7 +79,6 @@ class Team():
 				maxRow=max([candidate.v,candidate.m,candidate.s])
 			
 			factor = maxRow/minRow
-		
 		return candidate
 	
 	@classmethod
@@ -55,16 +93,15 @@ class Team():
 		m=0
 		s=0
 
-		rand = random.randint(0,comb[0][len(comb[0])-1])
-		t=0
-		while comb[0][t] < rand:
-			t=t+1
+		if not config.excludeKeeper:
+			rand = random.randint(0,comb[0][len(comb[0])-1])
+			while comb[0][t] < rand:
+				t=t+1
 
-
-		rand = random.randint(0,comb[t][len(comb[t])-1])
-		a=0
-		while comb[t][a] < rand:
-			a=a+1
+		if not config.excludeAusputzer:
+			rand = random.randint(0,comb[t][len(comb[t])-1])
+			while comb[t][a] < rand:
+				a=a+1
 
 
 		vms = wp-t*2-a*2
@@ -106,9 +143,6 @@ class Team():
 			s = first
 
 		name = str(t)+"-"+str(a)+"-"+str(v)+"-"+str(m)+"-"+str(s)
-		if config.verbose:
-			print(name)
-			logging.info(name)
 
 		return cls(name, t, a, v, m, s)
 
@@ -118,6 +152,7 @@ class Team():
 	def playAgainst(self,opp):
 		if config.verbose:
 			print("Team "+str(self.name)+" vs. Team "+str(opp.name))
+			logging.info("Team "+str(self.name)+" vs. Team "+str(opp.name))
 
 		if config.vampireMode and self.name == opp.name:
 			if config.verbose:
@@ -142,6 +177,7 @@ class Team():
 		
 		if config.verbose:
 			print("Chances: "+str(ownChances) + " - " + str(oppChances))
+			logging.info("Chances: "+str(ownChances) + " - " + str(oppChances))
 
 
 		tieOwnChances = 0
@@ -194,6 +230,7 @@ class Team():
 
 			if config.verbose:
 				print(str(ownGoals)+" - "+str(oppGoals))
+				logging.info(str(ownGoals)+" - "+str(oppGoals))
 
 			if ownGoals == oppGoals:
 				# Unentschieden nach 90 Minuten (falls KO-System)
@@ -294,7 +331,5 @@ class Team():
 		if config.verbose:
 			print("Simulating for Team "+str(self.name))
 		for opp in teams:
-			if opp.name != self.name:
+			if opp.id != self.id:
 				self.playAgainst(opp)
-			#else:
-			#    self.results.append("-")
