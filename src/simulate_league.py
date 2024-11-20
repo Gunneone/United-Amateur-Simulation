@@ -72,17 +72,17 @@ if __name__ == '__main__':
     logging.info("For " + str(config.amateur) + " wp there are " + str(combinations) + " different combinations.")
 
     #esc = team.Team("ESC",10,10,35,35,13)
-    esc1 = team.Team("ESC 1",0,0,10,8,24)
-    esc2 = team.Team("ESC 2",0,0,14,21,7)
-    esc3 = team.Team("ESC 3",0,0,18,6,18)
-    esc4 = team.Team("ESC 4",0,0,24,10,8)
-    esc5 = team.Team("ESC 5",0,0,18,18,6)
+    esc1 = team.Team("ESC 1",0,10,39,16,48)
+    esc2 = team.Team("ESC 2",0,10,23,20,60)
+    esc3 = team.Team("ESC 3",0,9,21,21,63)
+    esc4 = team.Team("ESC 4",0,10,51,35,17)
+    #esc4 = team.Team("ESC 4",0,0,24,10,8)
+    #esc5 = team.Team("ESC 5",0,0,18,18,6)
     # esc6 = team.Team("20-9-27",0,0,20,9,27)
     # esc7 = team.Team("27-20-9",0,0,27,20,9)
     # esc8 = team.Team("ESC",0,0,31,14,11)
     # esc9 = team.Team("14-11-31",0,0,14,11,31)
-    handSelectedTeams = [esc1, esc2, esc3, esc4, esc5]
-    handSelectedTeams = []
+    handSelectedTeams = [esc1,esc2,esc3,esc4]
 
     if config.tournamentMode:
         stats = {team.name: {'points': [], 'places':[]} for team in handSelectedTeams}

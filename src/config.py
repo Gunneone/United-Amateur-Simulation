@@ -13,9 +13,9 @@ excludeDefensive = False
 # Set T = 0
 excludeKeeper = True
 # Set A = 0
-excludeAusputzer = True
+excludeAusputzer = False
 # WP of the randomly generated Teams
-amateur = 42
+amateur = 123
 # How many random teams will be added to the user defined teams
 teamAmount = 28
 # number of generated tournaments if playing in tournament mode
